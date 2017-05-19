@@ -1,6 +1,6 @@
 {
   "name": "sports-tracker-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "rails api server for sports tracker app",
   "main": "index.js",
   "directories": {
