@@ -4,6 +4,8 @@
   "description": "rails api server for sports tracker app",
   "main": "index.js",
   "directories": {
+    "install": "bundle",
+    "start": "bin/rails s",
     "test": "test"
   },
   "scripts": {
