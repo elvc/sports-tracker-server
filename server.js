@@ -19,15 +19,7 @@ const dbCards = require('./db/cards')(knex);
 app.use(express.static('build'));
 
 app.get('/', (req, res) => {
-  console.log('eyyyy');
-  // dbUsers.getUserByUserName('Harmon_Daniel')
-  //   then(data => {
-  //     console.log(data);
-  //     res.sendFile(path.resolve(__dirname, '/index.html'));
-  //   })
-  //   .catch(error => {
-  //     res.next(404);
-  //   })
+ res.sendFile(path.resolve(__dirname, '/index.html'));
 });
 
 server.listen(PORT, () => {
