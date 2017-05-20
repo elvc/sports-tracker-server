@@ -21,7 +21,13 @@ app.get('/', (req, res) => {
 
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
+  socket.on('post', function (data) {
     console.log(data);
+
+    socket.to(data.room).emit(data.post);
+  });
+  socket.on('join', function (data) {
+    console.log(data);
+    socket.join(data.room);
   });
 });
