@@ -19,7 +19,7 @@ const dbCards = require('./db/cards')(knex);
 app.use(express.static('build'));
 
 app.get('/', (req, res) => {
- res.sendFile(path.resolve(__dirname, '/index.html'));
+  res.sendFile(path.resolve(__dirname, '/index.html'));
 });
 
 server.listen(PORT, () => {
