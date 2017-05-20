@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 
+const PORT = process.env.PORT || 8080;
 const ENV = process.env.NODE_ENV || 'development';
 
 const knexConfig = require('./knexfile');
@@ -11,12 +12,26 @@ const app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+const dbUsers = require('./db/users')(knex);
+const dbFavourites = require('./db/favourites')(knex);
+const dbCards = require('./db/cards')(knex);
+
 app.use(express.static('build'));
 
-server.listen(process.env.PORT || 8080);
-
 app.get('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '/index.html'));
+  console.log('eyyyy');
+  // dbUsers.getUserByUserName('Harmon_Daniel')
+  //   then(data => {
+  //     console.log(data);
+  //     res.sendFile(path.resolve(__dirname, '/index.html'));
+  //   })
+  //   .catch(error => {
+  //     res.next(404);
+  //   })
+});
+
+server.listen(PORT, () => {
+   console.log('Sports tracker listening on port ' + PORT);
 });
 
 io.on('connection', function (socket) {
