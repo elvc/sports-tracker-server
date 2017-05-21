@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
+const uuidV4 = require('uuid/v4');
 
 const PORT = process.env.PORT || 8080;
 const ENV = process.env.NODE_ENV || 'development';
@@ -27,14 +28,17 @@ server.listen(PORT, () => {
 });
 
 io.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
+  console.log('new client');
+  socket.emit('news', 'connection established');
   socket.on('post', function (data) {
-    console.log(data);
-
-    socket.to(data.room).emit(data.post);
+    console.log('post to', data.room, ':', data.message);
+    data.message.id = uuidV4();
+    data.message.room = data.room;
+    io.sockets.to(data.room).emit('post', data.message);
   });
   socket.on('join', function (data) {
-    console.log(data);
+    console.log(data.user, 'is joining', data.room);
     socket.join(data.room);
+    socket.to(data.room).emit('new user', data.user);
   });
 });
