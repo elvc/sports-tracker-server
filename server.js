@@ -17,16 +17,21 @@ const dbUsers = require('./db/users')(knex);
 const dbFavourites = require('./db/favourites')(knex);
 const dbCards = require('./db/cards')(knex);
 
+const router = require('./routes/auth');
+
 const {sendEmail} = require('./emailer/emailer');
 
+
 app.use(express.static('build'));
+
+app.use('/', router);
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '/index.html'));
 });
 
 server.listen(PORT, () => {
-  console.log(`Sports tracker listening on port ${PORT}`);
+   console.log('Sports tracker listening on port ' + PORT);
 });
 
 const broadcastUserCount = (room) => {
