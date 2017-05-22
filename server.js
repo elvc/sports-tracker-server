@@ -53,9 +53,8 @@ io.on('connection', (socket) => {
       userCount: io.sockets.adapter.rooms[data.room].length
     };
     io.in(data.room).emit('user count', onlineUsersMsg);
-
   });
   socket.on('disconnect', (socket) => {
     // TODO notify rooms, see http://stackoverflow.com/a/13993971/7811614
-  }
+  });
 });
