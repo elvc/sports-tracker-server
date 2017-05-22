@@ -1,6 +1,6 @@
 {
   "name": "sports-tracker-server",
-  "version": "0.0.5",
+  "version": "0.1.1",
   "description": "backend api server for sports tracker app",
   "main": "server.js",
   "scripts": {
@@ -27,6 +27,11 @@
     "socket.io": "^2.0.1"
   },
   "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^15.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^5.0.3",
+    "eslint-plugin-react": "^7.0.1",
     "knex-logger": "^0.1.0",
     "nodemon": "^1.11.0",
     "socket.io-client": "^2.0.1"

@@ -10,8 +10,8 @@ const ENV = process.env.NODE_ENV || 'development';
 const knexConfig = require('./knexfile');
 const knex = require('knex')(knexConfig[ENV]);
 const app = express();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 
 const dbUsers = require('./db/users')(knex);
 const dbFavourites = require('./db/favourites')(knex);
@@ -24,21 +24,38 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-   console.log('Sports tracker listening on port ' + PORT);
+  console.log(`Sports tracker listening on port ${PORT}`);
 });
 
-io.on('connection', function (socket) {
+io.on('connection', (socket) => {
   console.log('new client');
   socket.emit('news', 'connection established');
-  socket.on('post', function (data) {
+  socket.on('post', (data) => {
     console.log('post to', data.room, ':', data.message);
-    data.message.id = uuidV4();
-    data.message.room = data.room;
-    io.sockets.to(data.room).emit('post', data.message);
+    const newMessage = data.message;
+    newMessage.id = uuidV4();
+    newMessage.room = data.room;
+    io.in(data.room).emit('post', newMessage);
   });
-  socket.on('join', function (data) {
+  socket.on('join', (data) => {
     console.log(data.user, 'is joining', data.room);
     socket.join(data.room);
-    socket.to(data.room).emit('new user', data.user);
+    const onlineUsersMsg = {
+      room: data.room,
+      userCount: io.sockets.adapter.rooms[data.room].length
+    };
+    io.in(data.room).emit('user count', onlineUsersMsg);
   });
+  socket.on('leave', (data) => {
+    socket.leave(data.room);
+    const onlineUsersMsg = {
+      room: data.room,
+      userCount: io.sockets.adapter.rooms[data.room].length
+    };
+    io.in(data.room).emit('user count', onlineUsersMsg);
+
+  });
+  socket.on('disconnect', (socket) => {
+    // TODO notify rooms, see http://stackoverflow.com/a/13993971/7811614
+  }
 });
