@@ -17,6 +17,8 @@ const dbUsers = require('./db/users')(knex);
 const dbFavourites = require('./db/favourites')(knex);
 const dbCards = require('./db/cards')(knex);
 
+const {sendEmail} = require('./emailer/emailer');
+
 app.use(express.static('build'));
 
 app.get('/', (req, res) => {
@@ -27,34 +29,46 @@ server.listen(PORT, () => {
   console.log(`Sports tracker listening on port ${PORT}`);
 });
 
+const broadcastUserCount = (room) => {
+  const users = io.sockets.adapter.rooms[room];
+  const onlineUsersMsg = {
+    room,
+    userCount: users ? users.length : 0
+  };
+  io.in(room).emit('user count', onlineUsersMsg);
+};
+
+const broadcastToRoom = (room, message) => {
+  const newMessage = message;
+  newMessage.id = uuidV4();
+  newMessage.room = room;
+  io.in(room).emit('post', newMessage);
+};
+
 io.on('connection', (socket) => {
   console.log('new client');
-  socket.emit('news', 'connection established');
   socket.on('post', (data) => {
     console.log('post to', data.room, ':', data.message);
-    const newMessage = data.message;
-    newMessage.id = uuidV4();
-    newMessage.room = data.room;
-    io.in(data.room).emit('post', newMessage);
+    broadcastToRoom(data.room, data.message);
   });
   socket.on('join', (data) => {
     console.log(data.user, 'is joining', data.room);
     socket.join(data.room);
-    const onlineUsersMsg = {
-      room: data.room,
-      userCount: io.sockets.adapter.rooms[data.room].length
-    };
-    io.in(data.room).emit('user count', onlineUsersMsg);
+    broadcastUserCount(data.room);
   });
   socket.on('leave', (data) => {
+    console.log('leaving', data.room);
     socket.leave(data.room);
-    const onlineUsersMsg = {
-      room: data.room,
-      userCount: io.sockets.adapter.rooms[data.room].length
-    };
-    io.in(data.room).emit('user count', onlineUsersMsg);
+    broadcastUserCount(data.room);
   });
-  socket.on('disconnect', (socket) => {
-    // TODO notify rooms, see http://stackoverflow.com/a/13993971/7811614
+
+  let usersRooms = [];
+  socket.on('disconnecting', () => {
+    usersRooms = Object.values(socket.rooms).filter(e => typeof e === 'number');
+  });
+  socket.on('disconnect', () => {
+    usersRooms.forEach((room) => {
+      broadcastUserCount(room);
+    });
   });
 });
