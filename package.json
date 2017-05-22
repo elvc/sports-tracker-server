@@ -1,6 +1,6 @@
 {
   "name": "sports-tracker-server",
-  "version": "0.0.5",
+  "version": "0.1.1",
   "description": "backend api server for sports tracker app",
   "main": "server.js",
   "scripts": {
@@ -18,12 +18,22 @@
   },
   "homepage": "https://github.com/JSRossiter/sports-tracker-server#readme",
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "dotenv": "^4.0.0",
     "express": "^4.15.3",
+    "faker": "^4.1.0",
     "knex": "^0.13.0",
-    "pg": "^6.2.2"
+    "pg": "^6.2.2",
+    "socket.io": "^2.0.1"
   },
   "devDependencies": {
-    "nodemon": "^1.11.0"
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^15.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^5.0.3",
+    "eslint-plugin-react": "^7.0.1",
+    "knex-logger": "^0.1.0",
+    "nodemon": "^1.11.0",
+    "socket.io-client": "^2.0.1"
   }
 }
