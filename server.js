@@ -17,6 +17,8 @@ const dbUsers = require('./db/users')(knex);
 const dbFavourites = require('./db/favourites')(knex);
 const dbCards = require('./db/cards')(knex);
 
+const {sendEmail} = require('./emailer/emailer');
+
 app.use(express.static('build'));
 
 app.get('/', (req, res) => {
