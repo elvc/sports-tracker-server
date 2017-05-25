@@ -20,13 +20,15 @@ module.exports = (function() {
     maxAge: 24 * 60 * 60 * 1000
   }));
 
+  // for reg and login forms
+  router.use(bodyParser.json());
   router.use(bodyParser.urlencoded({ extended: true }));
-  
+
   router.use((req, res, next) => {
     const sessionUsername = req.session.username;
     if(!sessionUsername)
       res.locals.username = null;
-    else { 
+    else {
       dbUsers.getUserByUserName(sessionUsername).then(result => {
         res.locals.username = result.Username;
       });
@@ -47,9 +49,9 @@ module.exports = (function() {
           const username = req.body.username;
           const email = req.body.email;
           dbUsers.insertUser(username, email, hash)
-          .then(()=> {
+          .then(() => {
             req.session.username = req.body.username;
-            res.redirect('/');
+            res.json({ response: 'ok' });
           });
         });
       }

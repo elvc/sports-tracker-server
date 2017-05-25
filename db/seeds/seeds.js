@@ -1,5 +1,5 @@
 const faker = require('faker');
-const bcrypt = require('bcrypt');;
+const bcrypt = require('bcrypt');
 
 const config = {
   users: 3,

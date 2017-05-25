@@ -13,6 +13,8 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
+const cors = require('cors');
+
 const dbUsers = require('./db/users')(knex);
 const dbFavourites = require('./db/favourites')(knex);
 const dbCards = require('./db/cards')(knex);
@@ -21,7 +23,7 @@ const router = require('./routes/auth');
 
 const {sendEmail} = require('./emailer/emailer');
 
-
+app.use(cors());
 app.use(express.static('build'));
 
 app.use('/', router);
