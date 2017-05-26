@@ -23,7 +23,11 @@ const router = require('./routes/auth');
 
 const {sendEmail} = require('./emailer/emailer');
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:8081',
+  credentials: true
+}));
+
 app.use(express.static('build'));
 
 app.use('/', router);

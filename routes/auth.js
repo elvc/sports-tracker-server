@@ -23,16 +23,10 @@ module.exports = (function() {
   router.use(bodyParser.json());
   router.use(bodyParser.urlencoded({ extended: true }));
 
-  router.use((req, res, next) => {
+  // checks for sessions on page refresh
+  router.get('/checkifloggedin', (req, res) => {
     const sessionUsername = req.session.username;
-    if (!sessionUsername) {
-      res.locals.username = null;
-    } else {
-      dbUsers.getUserByUserName(sessionUsername).then(result => {
-        res.locals.username = result.Username;
-      });
-    }
-    next();
+    res.json({ isLoggedIn: (sessionUsername !== undefined) });
   });
 
   // register route
@@ -75,10 +69,10 @@ module.exports = (function() {
         bcrypt.compare(inputPw, registeredPw, (err, result) => {
           if (!result) {
             res.status(401);
-            res.json({ response: 'incorrect username or password' });
+            res.json({ response: 'Incorrect username or password' });
           } else {
             req.session.username = inputUsername;
-            res.json({ response: 'login ok' });
+            res.json({ response: 'Login ok' });
           }
         });
       }
@@ -87,7 +81,7 @@ module.exports = (function() {
     });
   });
 
-  //Logout route
+  // Logout route
   router.post('/logout', (req, res) => {
     req.session = null;
     res.redirect('/');
