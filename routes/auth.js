@@ -35,6 +35,7 @@ module.exports = (function() {
     next();
   });
 
+  // register route
   router.post('/register', (req, res) => {
     dbUsers.getUserByEmail(req.body.email).then(result => {
       if (!req.body.email || !req.body.password || !req.body.username){
@@ -50,7 +51,7 @@ module.exports = (function() {
           dbUsers.insertUser(username, email, hash)
           .then(() => {
             req.session.username = req.body.username;
-            res.json({ response: 'register ok' });
+            res.json({ response: 'Registration OK' })
           });
         });
       }
