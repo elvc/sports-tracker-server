@@ -23,7 +23,7 @@ module.exports = (function() {
   router.use(bodyParser.json());
   router.use(bodyParser.urlencoded({ extended: true }));
 
-  // checks for sessions on page refresh
+   // checks for sessions on page refresh
   router.get('/checkifloggedin', (req, res) => {
     const sessionUsername = req.session.username;
     res.json({ isLoggedIn: (sessionUsername !== undefined) });
