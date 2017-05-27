@@ -21,9 +21,13 @@ const dbCards = require('./db/cards')(knex);
 
 const router = require('./routes/auth');
 
-const {sendEmail} = require('./emailer/emailer');
+const { sendEmail } = require('./emailer/emailer');
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:8081',
+  credentials: true
+}));
+
 app.use(express.static('build'));
 
 app.use('/', router);
@@ -33,40 +37,54 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-   console.log('Sports tracker listening on port ' + PORT);
+  console.log(`Sports tracker listening on port ${PORT}`);
 });
 
 const broadcastUserCount = (room) => {
   const users = io.sockets.adapter.rooms[room];
   const onlineUsersMsg = {
+    type: 'UPDATE_USER_COUNT',
     room,
     userCount: users ? users.length : 0
   };
-  io.in(room).emit('user count', onlineUsersMsg);
+  io.in(room).emit('action', onlineUsersMsg);
 };
 
 const broadcastToRoom = (room, message) => {
-  const newMessage = message;
-  newMessage.id = uuidV4();
-  newMessage.room = room;
-  io.in(room).emit('post', newMessage);
+  const newMessage = {
+    message,
+    type: 'RECEIVE_MESSAGE',
+    room
+  };
+  newMessage.message.id = uuidV4();
+  io.in(room).emit('action', newMessage);
 };
 
 io.on('connection', (socket) => {
   console.log('new client');
-  socket.on('post', (data) => {
-    console.log('post to', data.room, ':', data.message);
-    broadcastToRoom(data.room, data.message);
-  });
-  socket.on('join', (data) => {
-    console.log(data.user, 'is joining', data.room);
-    socket.join(data.room);
-    broadcastUserCount(data.room);
-  });
-  socket.on('leave', (data) => {
-    console.log('leaving', data.room);
-    socket.leave(data.room);
-    broadcastUserCount(data.room);
+  socket.on('action', (action) => {
+    switch (action.type) {
+      case 'socket/POST_JOIN_ROOM': {
+        console.log('joining ', action.payload.roomId);
+        socket.join(action.payload.roomId);
+        broadcastUserCount(action.payload.roomId);
+        break;
+      }
+      case 'socket/POST_LEAVE_ROOM': {
+        console.log('leaving ', action.payload.roomId);
+        socket.leave(action.payload.roomId);
+        broadcastUserCount(action.payload.roomId);
+        break;
+      }
+      case 'socket/POST_MESSAGE': {
+        console.log('post to', action.payload.room, ':', action.payload.message);
+        broadcastToRoom(action.payload.room, action.payload.message);
+        break;
+      }
+      default: {
+        console.log('unknown action', action);
+      }
+    }
   });
 
   let usersRooms = [];
