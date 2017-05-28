@@ -12,6 +12,7 @@ const knex = require('knex')(knexConfig[ENV]);
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const cron = require('node-cron');
 
 const cors = require('cors');
 
@@ -20,6 +21,8 @@ const dbFavourites = require('./db/favourites')(knex);
 const dbCards = require('./db/cards')(knex);
 
 const router = require('./routes/auth');
+const api_router = require('./routes/game_api');
+const { updateDashboard }= require('./api/feed');
 
 const { sendEmail } = require('./emailer/emailer');
 
@@ -31,6 +34,7 @@ app.use(cors({
 app.use(express.static('build'));
 
 app.use('/', router);
+app.use('/leagues', api_router);
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '/index.html'));
@@ -39,6 +43,13 @@ app.get('/', (req, res) => {
 server.listen(PORT, () => {
   console.log(`Sports tracker listening on port ${PORT}`);
 });
+
+const task = cron.schedule(`0 * * * * *`, function(){
+  updateDashboard('MLB', io);
+  updateDashboard('NBA', io);
+  updateDashboard('NHL', io);
+}, false);
+task.start();
 
 const broadcastUserCount = (room) => {
   const users = io.sockets.adapter.rooms[room];
