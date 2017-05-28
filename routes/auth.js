@@ -26,7 +26,10 @@ module.exports = (function() {
    // checks for sessions on page refresh
   router.get('/checkifloggedin', (req, res) => {
     const sessionUsername = req.session.username;
-    res.json({ isLoggedIn: (sessionUsername !== undefined) });
+    res.json({
+      isLoggedIn: (sessionUsername !== undefined),
+      username: sessionUsername
+    });
   });
 
   // register route
@@ -45,7 +48,7 @@ module.exports = (function() {
           dbUsers.insertUser(username, email, hash)
           .then(() => {
             req.session.username = req.body.username;
-            res.json({ response: 'Registration OK' })
+            res.json({ username: req.session.username });
           });
         });
       }
@@ -72,7 +75,7 @@ module.exports = (function() {
             res.json({ response: 'Incorrect username or password' });
           } else {
             req.session.username = inputUsername;
-            res.json({ response: 'Login ok' });
+            res.json({ username: req.session.username });
           }
         });
       }
