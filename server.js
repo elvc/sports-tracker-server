@@ -44,6 +44,7 @@ server.listen(PORT, () => {
   console.log(`Sports tracker listening on port ${PORT}`);
 });
 
+
 const task = cron.schedule('0 * * * * *', () => {
   updateDashboard('MLB', io);
   updateDashboard('NBA', io);

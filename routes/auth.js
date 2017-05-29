@@ -26,10 +26,12 @@ module.exports = (function() {
 
   // checks for sessions on page refresh
   router.get('/checkifloggedin', (req, res) => {
+    console.log('check if loggedin');
     const sessionUsername = req.session.username;
     res.json({
       isLoggedIn: (sessionUsername !== undefined),
-      username: sessionUsername
+      username: sessionUsername,
+      user_id: req.session.user_id
     });
   });
 
@@ -46,10 +48,11 @@ module.exports = (function() {
         bcrypt.hash(req.body.password, 10, (err, hash) => {
           const username = req.body.username.toLowerCase();
           const email = req.body.email.toLowerCase();
-          dbUsers.insertUser(username, email, hash)
+          const user_id = dbUsers.insertUser(username, email, hash)
           .then(() => {
             req.session.username = username;
-            res.json({ username: req.session.username });
+            req.session.user_id = user_id;
+            res.json({ username: req.session.username, user_id: req.session.user_id });
           });
         });
       }
@@ -67,13 +70,15 @@ module.exports = (function() {
         res.json({ message: `Incorrect username or password` });
       } else {
         const registeredPw = result[0].password;
+        const user_id = result[0].id;
         bcrypt.compare(inputPw, registeredPw, (err, result) => {
           if (!result) {
             res.status(401);
             res.json({ message: 'Incorrect username or password' });
           } else {
             req.session.username = inputUsername;
-            res.json({ username: req.session.username });
+            req.session.user_id = user_id;
+            res.json({ username: req.session.username, user_id: req.session.user_id });
           }
         });
       }

@@ -4,6 +4,13 @@ const mlb = require('./play_filters/mlb');
 const nhl = require('./play_filters/nhl');
 const axios = require('axios');
 const moment = require('moment-timezone');
+
+const ENV = process.env.NODE_ENV || 'development';
+
+const knexConfig = require('../knexfile');
+const knex = require('knex')(knexConfig[ENV]);
+const dbCards = require('../db/cards')(knex);
+
 const api_key = process.env.GOOGLE_API_KEY;
 const date_format = 'YYYYMMDD';
 const date_time_zone = 'America/Los_Angeles';
@@ -27,7 +34,14 @@ function gameSelector(id, json){
   });
 }
 
-function addCard(game, res){
+function addCard(user_id, game, res){
+  if(user_id){
+    dbCards.findByGameAndUser(Number(game.gameId), Number(user_id)).then(result => {
+      if(!result[0]){
+        dbCards.insertCard(game, user_id).then(result => console.log(result));
+      }
+    });
+  }
   const league = game.league;
   const game_id = game.gameId;
   const game_starting_time = moment.tz(`${game.date} ${game.time}`,'YYYY-MM-DD hh:mmA', date_time_zone);
@@ -52,11 +66,16 @@ function addCard(game, res){
       data.startTime = game.time;
       data.inProgress = selectedGame.isInProgress;
       data.isUnplayed = selectedGame.isUnplayed;
+      data.plays = [];
       axios.get(`https://www.mysportsfeeds.com/api/feed/pull/${game.league}/latest/game_playbyplay.json?gameid=${game.gameId}`, config)
         .then(response => {
           switch (game.league){
             case BASEBALL:
               if(response.data.gameplaybyplay.atBats){
+                if(!Array.isArray(response.data.gameplaybyplay.atBats.atBat)){
+                  const newArray = new Array(response.data.gameplaybyplay.atBats.atBat);
+                  response.data.gameplaybyplay.atBats.atBat = newArray;
+                }
                 data.plays = mlb(response.data).reverse();
               }
               data.currentInning = selectedGame.currentInning;
@@ -82,7 +101,7 @@ function addCard(game, res){
               break;
           }
           res.json({ response: data });
-        })
+        }).catch(error => console.log(error))
     }).catch(error => console.log(error));
   } else {
 
@@ -188,12 +207,12 @@ function updateDashboard(league, socket){
                   some
                 };
                 socket.emit('action', onUpdateCards);
-              })
+              }).catch(error => console.log(error))
             }
           })
       }));
     }
-  })
+  }).catch(error => console.log(error))
 }
 
 module.exports = {addCard, updateDashboard};
