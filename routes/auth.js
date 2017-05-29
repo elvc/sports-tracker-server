@@ -10,6 +10,7 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const dbUsers = require('../db/users')(knex);
 
+
 const router = express.Router();
 
 module.exports = (function() {
