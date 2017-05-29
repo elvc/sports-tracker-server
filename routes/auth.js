@@ -37,10 +37,10 @@ module.exports = (function() {
     dbUsers.getUserByEmail(req.body.email).then(result => {
       if (!req.body.email || !req.body.password || !req.body.username){
         res.status(400);
-        res.json({ response: 'Please input all fields.'});
+        res.json({ message: 'Please input all fields.'});
       } else if (result[0]) {
         res.status(400);
-        res.json({ response: 'Email entered already in use. Please register with another email' });
+        res.json({ message: 'Email entered already in use. Please register with another email' });
       } else {
         bcrypt.hash(req.body.password, 10, (err, hash) => {
           const username = req.body.username.toLowerCase();
@@ -62,32 +62,31 @@ module.exports = (function() {
 
     dbUsers.getUserByUserName(inputUsername).then((result) => {
       if (!result[0]) {
-        res.status(403)
-        return Promise.reject({
-          type: 403,
-          message: `Account with email entered not found.`
-        });
+        res.status(401);
+        res.json({ message: `Incorrect username or password` });
       } else {
         const registeredPw = result[0].password;
         bcrypt.compare(inputPw, registeredPw, (err, result) => {
           if (!result) {
             res.status(401);
-            res.json({ response: 'Incorrect username or password' });
+            res.json({ message: 'Incorrect username or password' });
           } else {
             req.session.username = inputUsername;
             res.json({ username: req.session.username });
           }
         });
       }
-    }).catch(err => {
-      res.redirect('/');
+    }).catch(() => {
+      res.status(500);
+      res.json({ message: 'Database Error. Please try again' });
     });
   });
 
   // Logout route
   router.post('/logout', (req, res) => {
     req.session = null;
-    res.redirect('/');
+    res.status(200);
+    res.json({ message: 'Logout Successful' });
   });
 
   return router;
