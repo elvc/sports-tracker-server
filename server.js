@@ -22,7 +22,7 @@ const dbCards = require('./db/cards')(knex);
 
 const router = require('./routes/auth');
 const api_router = require('./routes/game_api');
-const { updateDashboard }= require('./api/feed');
+const { updateDashboard } = require('./api/feed');
 
 const { sendEmail } = require('./emailer/emailer');
 
@@ -44,7 +44,7 @@ server.listen(PORT, () => {
   console.log(`Sports tracker listening on port ${PORT}`);
 });
 
-const task = cron.schedule(`0 * * * * *`, function(){
+const task = cron.schedule('0 * * * * *', () => {
   updateDashboard('MLB', io);
   updateDashboard('NBA', io);
   updateDashboard('NHL', io);
@@ -75,13 +75,13 @@ io.on('connection', (socket) => {
   console.log('new client');
   socket.on('action', (action) => {
     switch (action.type) {
-      case 'socket/POST_JOIN_ROOM': {
-        console.log('joining ', action.payload.roomId);
-        socket.join(action.payload.roomId);
-        broadcastUserCount(action.payload.roomId);
+      case 'socket/JOIN_ROOM': {
+        console.log('joining ', action.payload.room.id);
+        socket.join(action.payload.room.id);
+        broadcastUserCount(action.payload.room.id);
         break;
       }
-      case 'socket/POST_LEAVE_ROOM': {
+      case 'socket/LEAVE_ROOM': {
         console.log('leaving ', action.payload.roomId);
         socket.leave(action.payload.roomId);
         broadcastUserCount(action.payload.roomId);
