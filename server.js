@@ -20,8 +20,9 @@ const dbUsers = require('./db/users')(knex);
 const dbFavourites = require('./db/favourites')(knex);
 const dbCards = require('./db/cards')(knex);
 
-const router = require('./routes/auth');
-const api_router = require('./routes/game_api');
+const authRouter = require('./routes/auth');
+const apiRouter = require('./routes/game_api');
+const userRouter = require('./routes/user');
 const { updateDashboard } = require('./api/feed');
 
 app.use(cors({
@@ -31,10 +32,15 @@ app.use(cors({
 
 app.use(express.static('build'));
 
-app.use('/', router);
-app.use('/leagues', api_router);
+app.use('/', authRouter);
+app.use('/leagues', apiRouter);
+app.use('/users', userRouter);
 
 app.get('/', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '/index.html'));
+});
+
+app.get('/game/:id', (req, res) => {
   res.sendFile(path.resolve(__dirname, '/index.html'));
 });
 
@@ -44,9 +50,9 @@ server.listen(PORT, () => {
 
 
 const task = cron.schedule('0 * * * * *', () => {
-  updateDashboard('MLB', io);
-  updateDashboard('NBA', io);
-  updateDashboard('NHL', io);
+  // updateDashboard('MLB', io);
+  // updateDashboard('NBA', io);
+  // updateDashboard('NHL', io);
 }, false);
 task.start();
 

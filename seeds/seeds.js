@@ -61,3 +61,6 @@ exports.seed = function(knex, Promise) {
 
   return users().then(favourites).then(cards);
 };
+
+
+

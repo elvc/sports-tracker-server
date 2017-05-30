@@ -14,7 +14,6 @@ const createPlayString = data => data.gameplaybyplay.plays.play.reduce((acc, pla
     sport: 'NHL'
   };
   const playType = Object.keys(play).filter(key => key !== 'period' && key !== 'time');
-
   switch (playType[0]) {
     case 'faceoff':
       if (play.faceoff.wonBy === data.gameplaybyplay.game.homeTeam.Abbreviation) {
@@ -24,7 +23,10 @@ const createPlayString = data => data.gameplaybyplay.plays.play.reduce((acc, pla
       }
       break;
     case 'goal':
-      output.content = `${play.goal.goalScorer.FirstName} ${play.goal.goalScorer.LastName} scores, assisted by ${play.goal.assist1Player.FirstName} ${play.goal.assist1Player.LastName}`;
+      output.content = `${play.goal.goalScorer.FirstName} ${play.goal.goalScorer.LastName} scores`;
+      if (play.goal.assist1Player) {
+        output.content += `, assisted by ${play.goal.assist1Player.FirstName} ${play.goal.assist1Player.LastName}`;
+      }
       output.style = 'goal-play-nhl';
       break;
     case 'penaltyShot':
@@ -43,9 +45,20 @@ const createPlayString = data => data.gameplaybyplay.plays.play.reduce((acc, pla
           break;
       }
       break;
-    case 'goalieChange':
-      output.content = `${play.goalieChange.incomingGoalie.FirstName} ${play.goalieChange.incomingGoalie.LastName} replaces ${play.goalieChange.outgoingGoalie.FirstName} ${play.goalieChange.outgoingGoalie.LastName} as goalie`;
+    case 'goalieChange': {
+      const incoming = play.goalieChange.incomingGoalie;
+      const outgoing = play.goalieChange.outgoingGoalie;
+      if (incoming !== undefined && outgoing !== undefined) {
+        output.content = `${incoming.FirstName} ${incoming.LastName} replaces ${outgoing.FirstName} ${outgoing.LastName} as goalie`;
+      } else if (incoming !== undefined) {
+        output.content = `${incoming.FirstName} ${incoming.LastName} comes in as goalie`;
+      } else if (outgoing !== undefined) {
+        output.content = `${outgoing.FirstName} ${outgoing.LastName} is being replaced as goalie`;
+      } else {
+        output.content = 'Unknwon goalie change';
+      }
       break;
+    }
     case 'hit':
       output.content = `${play.hit.player.FirstName} ${play.hit.player.LastName} credited with hit`;
       break;
