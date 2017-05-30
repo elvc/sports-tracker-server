@@ -1,16 +1,13 @@
+const { sendEmail, sendEmailNow } = require('../emailer/emailer');
 require('dotenv').config();
-
 const ENV = process.env.NODE_ENV || 'development';
 const knexConfig = require('../knexfile');
 const knex = require('knex')(knexConfig[ENV]);
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const dbUsers = require('../db/users')(knex);
-
-
 const router = express.Router();
 
 module.exports = (function() {
@@ -26,13 +23,19 @@ module.exports = (function() {
 
   // checks for sessions on page refresh
   router.get('/checkifloggedin', (req, res) => {
-    console.log('check if loggedin');
     const sessionUsername = req.session.username;
     res.json({
       isLoggedIn: (sessionUsername !== undefined),
       username: sessionUsername,
       user_id: req.session.user_id
     });
+  });
+
+  // share email route
+  router.post('/share', (req, res) => {
+    sendEmailNow(req.body.date, req.body.awayTeam, req.body.homeTeam, req.body.email);
+    res.status(200);
+    res.json({ message: 'Success', email: req.body.email});
   });
 
   // register route
