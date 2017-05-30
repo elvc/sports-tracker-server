@@ -14,6 +14,12 @@ module.exports = function(knex) {
       return knex.select('*')
       .from('users')
       .where('email', '=', email)
-      }
+    },
+    getUserByUserNameOrEmail: (username, email) => {
+      return knex.select('*')
+      .from('users')
+      .where('email', email)
+      .orWhere('username', username)
+    }
   };
 };
