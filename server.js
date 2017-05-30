@@ -22,6 +22,7 @@ const dbCards = require('./db/cards')(knex);
 
 const router = require('./routes/auth');
 const api_router = require('./routes/game_api');
+const user_router = require('./routes/user');
 const { updateDashboard } = require('./api/feed');
 
 app.use(cors({
@@ -33,6 +34,7 @@ app.use(express.static('build'));
 
 app.use('/', router);
 app.use('/leagues', api_router);
+app.use('/users', user_router);
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '/index.html'));
@@ -44,9 +46,9 @@ server.listen(PORT, () => {
 
 
 const task = cron.schedule('0 * * * * *', () => {
-  updateDashboard('MLB', io);
-  updateDashboard('NBA', io);
-  updateDashboard('NHL', io);
+  // updateDashboard('MLB', io);
+  // updateDashboard('NBA', io);
+  // updateDashboard('NHL', io);
 }, false);
 task.start();
 

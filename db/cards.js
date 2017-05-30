@@ -12,9 +12,12 @@ module.exports = function(knex) {
       .where('user_id', '=', user_id);
     },
     findByGameAndUser: (game_id, user_id) => {
-      return knex.select('game_id')
+      return knex.select('id')
       .from('cards')
       .where('user_id', '=', user_id).andWhere('game_id', '=', game_id);
+    },
+    removeCard: (id) => {
+      return knex('cards').where(id).del();
     }
   };
 };

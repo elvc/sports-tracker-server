@@ -14,7 +14,6 @@ const createPlayString = data => data.gameplaybyplay.plays.play.reduce((acc, pla
     sport: 'NHL'
   };
   const playType = Object.keys(play).filter(key => key !== 'period' && key !== 'time');
-
   switch (playType[0]) {
     case 'faceoff':
       if (play.faceoff.wonBy === data.gameplaybyplay.game.homeTeam.Abbreviation) {
@@ -24,7 +23,10 @@ const createPlayString = data => data.gameplaybyplay.plays.play.reduce((acc, pla
       }
       break;
     case 'goal':
-      output.content = `${play.goal.goalScorer.FirstName} ${play.goal.goalScorer.LastName} scores, assisted by ${play.goal.assist1Player.FirstName} ${play.goal.assist1Player.LastName}`;
+      output.content = `${play.goal.goalScorer.FirstName} ${play.goal.goalScorer.LastName} scores`;
+      if (play.goal.assist1Player){
+        output.content += `, assisted by ${play.goal.assist1Player.FirstName} ${play.goal.assist1Player.LastName}`;
+      }
       output.style = 'goal-play-nhl';
       break;
     case 'penaltyShot':

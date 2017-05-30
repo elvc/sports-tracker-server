@@ -55,14 +55,27 @@ module.exports = (function() {
     addCard(user_id, req.body, res);
   });
 
-  api_router.get('/:league/users/:id', (req, res) => {
-    const user_id = req.session.user_id;
-    if(user_id){
-      dbCards.getCardsByUser(user_id).then(result => {
-        res.json({response: result});
-      })
-    }
-  });
+  // api_router.get('/users', (req, res) => {
+  //   const user_id = req.session.user_id;
+  //   console.log('inrouter');
+  //   console.log(req.session.username);
+  //   console.log(user_id);
+  //   if(user_id){
+  //     dbCards.getCardsByUser(user_id).then(result => {
+  //       console.log(result);
+  //       res.json({response: result});
+  //     })
+  //   }
+  // }),
 
-  return api_router;
+  // api_router.post('/remove', (req, res) => {
+  //   const user_id = req.session.user_id;
+  //   const gameId = req.body;
+  //   console.log(gameId);
+  //   if(user_id){
+  //     dbCards.findByGameAndUser(gameId, user_id).then(result => dbCards.removeCard(result[0]).then(result => console.log('card removed')));
+  //   }
+  // })
+
+return api_router;
 })();
