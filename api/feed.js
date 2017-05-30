@@ -77,25 +77,33 @@ function addCard(user_id, game, res){
                   response.data.gameplaybyplay.atBats.atBat = newArray;
                 }
                 data.plays = mlb(response.data).reverse();
+                data.currentInning = selectedGame.currentInning;
+                data.currentInningHalf = selectedGame.currentInningHalf;
+                data.innings = selectedGame.inningSummary.inning;
               }
-              data.currentInning = selectedGame.currentInning;
-              data.currentInningHalf = selectedGame.currentInningHalf;
-              data.innings = selectedGame.inningSummary.inning;
               break;
             case BASKETBALL:
               if(response.data.gameplaybyplay.plays){
+                if(!Array.isArray(response.data.gameplaybyplay.plays.play)){
+                  const newArray = new Array(response.data.gameplaybyplay.plays.play);
+                  response.data.gameplaybyplay.plays.play = newArray;
+                }
                 data.plays = nba(response.data).reverse();
                 data.timeRemaining = data.plays[0].time;
+                data.quarter = selectedGame.quarterSummary.quarter[selectedGame.quarterSummary.quarter.length - 1]['@number'];
               }
-              data.quarter = selectedGame.quarterSummary.quarter[selectedGame.quarterSummary.quarter.length - 1]['@number'];
               break;
             case HOCKEY:
               if(response.data.gameplaybyplay.plays){
+                if(!Array.isArray(response.data.gameplaybyplay.plays.play)){
+                  const newArray = new Array(response.data.gameplaybyplay.plays.play);
+                  response.data.gameplaybyplay.plays.play = newArray;
+                }
                 data.plays = nhl(response.data).reverse();
                 data.timeRemaining = data.plays[0].time;
+                data.period = selectedGame.periodSummary.period[selectedGame.periodSummary.period.length - 1]['@number'];
+                data.periods = selectedGame.periodSummary.period;
               }
-              data.period = selectedGame.periodSummary.period[selectedGame.periodSummary.period.length - 1]['@number'];
-              data.periods = selectedGame.periodSummary.period;
               break;
             default:
               break;
@@ -177,26 +185,39 @@ function updateDashboard(league, socket){
                 switch (data.league){
                   case BASEBALL:
                     if(response.data.gameplaybyplay.atBats){
+                      if(!Array.isArray(response.data.gameplaybyplay.atBats.atBat)){
+                        const newArray = new Array(response.data.gameplaybyplay.atBats.atBat);
+                        response.data.gameplaybyplay.atBats.atBat = newArray;
+                      }
                       data.plays = mlb(response.data).reverse();
+                      data.currentInning = game.currentInning;
+                      data.currentInningHalf = game.currentInningHalf;
+                      data.innings = game.inningSummary.inning;
                     }
-                    data.currentInning = game.currentInning;
-                    data.currentInningHalf = game.currentInningHalf;
-                    data.innings = game.inningSummary.inning;
                     break;
                   case BASKETBALL:
                     if(response.data.gameplaybyplay.plays){
+                      if(!Array.isArray(response.data.gameplaybyplay.plays.play)){
+                        const newArray = new Array(response.data.gameplaybyplay.plays.play);
+                        response.data.gameplaybyplay.plays.play = newArray;
+                      }
                       data.plays = nba(response.data);
                       data.timeRemaining = data.plays[0].time;
+                      data.quarter = game.quarterSummary.quarter[game.quarterSummary.quarter.length - 1]['@number'];
                     }
-                    data.quarter = game.quarterSummary.quarter[game.quarterSummary.quarter.length - 1]['@number'];
+
                     break;
                   case HOCKEY:
                     if(response.data.gameplaybyplay.plays){
+                      if(!Array.isArray(response.data.gameplaybyplay.plays.play)){
+                        const newArray = new Array(response.data.gameplaybyplay.plays.play);
+                        response.data.gameplaybyplay.plays.play = newArray;
+                      }
                       data.plays = nhl(response.data);
                       data.timeRemaining = data.plays[0].time;
+                      data.period = game.periodSummary.period[game.periodSummary.period.length - 1]['@number'];
+                      data.periods = game.periodSummary.period;
                     }
-                    data.period = game.periodSummary.period[game.periodSummary.period.length - 1]['@number'];
-                    data.periods = game.periodSummary.period;
                     break;
                   default:
                     break;
