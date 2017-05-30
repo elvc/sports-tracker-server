@@ -24,8 +24,6 @@ const router = require('./routes/auth');
 const api_router = require('./routes/game_api');
 const { updateDashboard } = require('./api/feed');
 
-const { sendEmail } = require('./emailer/emailer');
-
 app.use(cors({
   origin: 'http://localhost:8081',
   credentials: true
@@ -73,7 +71,7 @@ const broadcastToRoom = (room, message) => {
 };
 
 io.on('connection', (socket) => {
-  console.log('new client');
+  console.log('New client connected');
   socket.on('action', (action) => {
     switch (action.type) {
       case 'socket/JOIN_ROOM': {
