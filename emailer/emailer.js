@@ -29,7 +29,7 @@ module.exports = {
     // schedule to email reminder 45 minutes before game time
     const sendTime = moment(`${date} ${startTime}`, 'YYYY-MM-DD hh:mmA').subtract(45, 'minutes');
 
-    const task = cron.schedule(`* ${sendTime.minute()} ${sendTime.hour()} ${sendTime.date()} * *`, function() {
+    const task = cron.schedule(`* ${sendTime.minute()} ${sendTime.hour()} ${sendTime.date()} * *`, () => {
       const mail = {
         from: 'sport.tracker.canada@gmail.com',
         to,
