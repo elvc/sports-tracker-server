@@ -204,6 +204,13 @@ function updateDashboard(league, socket){
             data.startTime = game.time;
             data.isCompleted = game.isInProgress !== 'true' && game.isUnplayed !== 'true';
             data.plays = [];
+            data.currentInning = '';
+            data.currentInningHalf = '';
+            data.innings = [];
+            data.timeRemaining = 0;
+            data.quarter = '';
+            data.period = '';
+            data.periods = [];
             if(game_starting_time.diff(now) < 0){
               const date = game.game.date.replace(/-/g , '');
               return axios.get(`https://www.mysportsfeeds.com/api/feed/pull/${data.league}/latest/game_playbyplay.json?gameid=${data.gameId}`, config)
@@ -255,16 +262,14 @@ function updateDashboard(league, socket){
                 };
                 socket.emit('action', onUpdateCards);
               }).catch(error => {
-                  res.status(500);
-                  res.json({ message: 'Unable to get the API data. Please try again' });
+                socket.emit({ message: 'Unable to get the API data. Please try again' });
               })
             }
           })
       }));
     }
   }).catch(error => {
-      res.status(500);
-      res.json({ message: 'Unable to get the API data. Please try again' });
+    socket.emit({ message: 'Unable to get the API data. Please try again' });
   })
 }
 
