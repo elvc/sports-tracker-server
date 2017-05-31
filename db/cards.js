@@ -3,13 +3,16 @@ module.exports = function(knex) {
 
     insertCard: (game, user_id) => {
       return knex.returning('id')
-      .insert({user_id: user_id, game_id: Number(game.gameId), league: game.league, awayTeam: game.awayTeam, homeTeam: game.homeTeam, time: game.time, date: game.date})
+      .insert({user_id: user_id, game_id: Number(game.gameId)})
       .into('cards');
     },
     getCardsByUser: (user_id) => {
-      return knex.select('user_id', 'game_id as gameId', 'league', 'awayTeam', 'homeTeam', 'time', 'date')
+      return knex.select('cards.user_id', 'cards.game_id as gameId', 'games.league', 'awayteam.abbreviation as awayteam', 'hometeam.abbreviation as hometeam', 'games.time', 'games.date')
       .from('cards')
-      .where('user_id', '=', user_id);
+      .join('games', 'cards.game_id','games.id')
+      .join('teams AS awayteam', 'games.away_team_id', 'awayteam.id')
+      .join('teams AS hometeam', 'games.home_team_id', 'hometeam.id')
+      .where('cards.user_id', '=', user_id);
     },
     findByGameAndUser: (game_id, user_id) => {
       return knex.select('id')

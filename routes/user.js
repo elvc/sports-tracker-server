@@ -14,13 +14,22 @@ module.exports = (function() {
 
   user_router.get('/get', (req, res) => {
     const user_id = req.session.user_id;
-    console.log('inrouter');
-    console.log(req.session.username);
-    console.log(user_id);
     if(user_id){
       dbCards.getCardsByUser(user_id).then(result => {
-        console.log(result);
-        res.json({response: result});
+          const games = result.map(dbGame => {
+            let game = {};
+            game.gameId = dbGame.gameId;
+            game.awayTeam = dbGame.awayteam;
+            game.homeTeam = dbGame.hometeam;
+            game.date = dbGame.date;
+            game.time = dbGame.time;
+            game.league = dbGame.league;
+            return game;
+          })
+        res.json({response: games});
+      }).catch(error => {
+        res.status(500);
+        res.json({ message: 'Database Error. Please try again' });
       })
     }
   }),
@@ -28,12 +37,14 @@ module.exports = (function() {
   user_router.post('/remove', (req, res) => {
     const user_id = req.session.user_id;
     const gameId = req.body;
-    console.log(gameId);
     if(user_id){
       dbCards.findByGameAndUser(gameId.gameId, user_id).then(result => {
         if(result[0]){
           dbCards.removeCard(result[0]).then(result => console.log('card removed'));
         }
+      }).catch(error => {
+        res.status(500);
+        res.json({ message: 'Database Error. Please try again' });
       });
     }
   })

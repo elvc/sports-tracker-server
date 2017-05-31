@@ -10,6 +10,7 @@ const ENV = process.env.NODE_ENV || 'development';
 const knexConfig = require('../knexfile');
 const knex = require('knex')(knexConfig[ENV]);
 const dbCards = require('../db/cards')(knex);
+const dbGames = require('../db/games')(knex);
 
 const api_key = process.env.GOOGLE_API_KEY;
 const date_format = 'YYYYMMDD';
@@ -38,8 +39,27 @@ function addCard(user_id, game, res){
   if(user_id){
     dbCards.findByGameAndUser(Number(game.gameId), Number(user_id)).then(result => {
       if(!result[0]){
-        dbCards.insertCard(game, user_id).then(result => console.log(result));
+        dbCards.insertCard(game, user_id).then(result =>{
+          dbGames.findGame(game.gameId).then(result => {
+            if(!result[0]){
+              dbGames.insertGame(game).then(result => console.log('Game inserted'))
+              .catch(error => {
+                res.status(500);
+                res.json({ message: 'Database Error. Please try again' });
+              });
+            }
+          }).catch(error => {
+            res.status(500);
+            res.json({ message: 'Database Error. Please try again' });
+          });
+        }).catch(error => {
+          res.status(500);
+          res.json({ message: 'Database Error. Please try again' });
+        })
       }
+    }).catch(error => {
+        res.status(500);
+        res.json({ message: 'Database Error. Please try again' });
     });
   }
   const league = game.league;
@@ -109,8 +129,14 @@ function addCard(user_id, game, res){
               break;
           }
           res.json({ response: data });
-        }).catch(error => console.log(error))
-    }).catch(error => console.log(error));
+        }).catch(error => {
+            res.status(500);
+            res.json({ message: 'Unable to get the API data. Please try again' });
+        })
+    }).catch(error => {
+        res.status(500);
+        res.json({ message: 'Unable to get the API data. Please try again' });
+    });
   } else {
 
     const data = {
@@ -228,12 +254,18 @@ function updateDashboard(league, socket){
                   some
                 };
                 socket.emit('action', onUpdateCards);
-              }).catch(error => console.log(error))
+              }).catch(error => {
+                  res.status(500);
+                  res.json({ message: 'Unable to get the API data. Please try again' });
+              })
             }
           })
       }));
     }
-  }).catch(error => console.log(error))
+  }).catch(error => {
+      res.status(500);
+      res.json({ message: 'Unable to get the API data. Please try again' });
+  })
 }
 
 module.exports = {addCard, updateDashboard};

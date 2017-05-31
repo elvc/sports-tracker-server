@@ -51,10 +51,10 @@ module.exports = (function() {
         bcrypt.hash(req.body.password, 10, (err, hash) => {
           const username = req.body.username.toLowerCase();
           const email = req.body.email.toLowerCase();
-          const userId = dbUsers.insertUser(username, email, hash)
-          .then(() => {
+          dbUsers.insertUser(username, email, hash)
+          .then(result => {
             req.session.username = username;
-            req.session.user_id = userId;
+            req.session.user_id = result[0];
             res.json({ username: req.session.username, user_id: req.session.user_id });
           });
         });
