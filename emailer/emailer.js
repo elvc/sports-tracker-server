@@ -2,6 +2,7 @@ const hbs = require('nodemailer-express-handlebars');
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const cron = require('node-cron');
+const moment = require('moment');
 
 const transporter = nodemailer.createTransport({
   host: process.env.NODEMAILER_HOST,
@@ -24,15 +25,18 @@ const options = {
 transporter.use('compile', hbs(options));
 
 module.exports = {
-  sendEmail: (date, game, to) => {
-    const task = cron.schedule(`* ${date.minute()} ${date.hour()} ${date.date()} * *`, function(){
+  sendEmail: (date, awayTeam, homeTeam, to, startTime) => {
+    // schedule to email reminder 45 minutes before game time
+    const sendTime = moment(`${date} ${startTime}`, 'YYYY-MM-DD hh:mmA').subtract(45, 'minutes');
+
+    const task = cron.schedule(`* ${sendTime.minute()} ${sendTime.hour()} ${sendTime.date()} * *`, function() {
       const mail = {
         from: 'sport.tracker.canada@gmail.com',
         to,
-        subject: `${game}`,
-        template: 'html',
+        subject: `Reminder: ${awayTeam} vs ${homeTeam} on ${date} at ${startTime}`,
+        template: 'notify',
         context: {
-          game: `${game}`
+          game: `Reminder: ${awayTeam} vs ${homeTeam} on ${date}. Game is starting at ${startTime}`
         }
       }
       transporter.sendMail(mail);

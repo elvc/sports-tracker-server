@@ -35,15 +35,29 @@ module.exports = (function() {
   router.post('/share', (req, res) => {
     sendEmailNow(req.body.date, req.body.awayTeam, req.body.homeTeam, req.body.email);
     res.status(200);
-    res.json({ message: 'Success', email: req.body.email});
+    res.json({ message: 'Success', email: req.body.email });
+  });
+
+  // notify-me route
+  router.post('/notify-me', (req, res) => {
+    sendEmail(req.body.date, req.body.awayTeam, req.body.homeTeam, req.body.email, req.body.startTime);
+    res.status(200);
+    res.json({ message: 'Success', email: req.body.email });
   });
 
   // register route
   router.post('/register', (req, res) => {
-    dbUsers.getUserByUserNameOrEmail(req.body.username, req.body.email).then(result => {
-      if (!req.body.email || !req.body.password || !req.body.username){
+    dbUsers.getUserByUserNameOrEmail(req.body.username, req.body.email)
+    .then(result => {
+      if (!req.body.email || !req.body.password || !req.body.username) {
         res.status(400);
         res.json({ message: 'Please input all fields.' });
+      } else if (req.body.password.length < 8) {
+        res.status(400);
+        res.json({ message: 'Password length must contain at least 8 characters.' });
+      } else if (req.body.username.length < 5) {
+        res.status(400);
+        res.json({ message: 'User name length must exceed 5 characters.' });
       } else if (result[0]) {
         res.status(400);
         res.json({ message: 'Username/Email already in use. Please register with another username and email' });
