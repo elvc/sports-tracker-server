@@ -5,7 +5,8 @@ module.exports = function(knex) {
       .from('games')
       .join('teams AS awayteam', 'games.away_team_id', 'awayteam.id')
       .join('teams AS hometeam', 'games.home_team_id', 'hometeam.id')
-      .where('games.league', '=', league).andWhere('games.date', '=', date);
+      .where('games.league', '=', league).andWhere('games.date', '=', date)
+      .orderBy('games.time', 'asc');
     },
     findGame: (id) => {
       return knex.select('*')

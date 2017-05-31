@@ -43,6 +43,7 @@ module.exports = (function() {
           return game;
         });
         res.json({ response: values });
+        return;
       } else {
         axios.get(`https://www.mysportsfeeds.com/api/feed/pull/${league}/latest/daily_game_schedule.json?fordate=${date}`, config)
         .then(function(json){
@@ -58,6 +59,7 @@ module.exports = (function() {
             return game;
           })
           res.json({ response: values });
+          return;
         }).catch(error => {
             res.status(500);
             res.json({ message: 'Unable to get the API data. Please try again' });
