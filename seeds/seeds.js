@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const moment = require('moment-timezone');
 
 const nbaGames = require('./NBA.json');
+const nbaTeams = require('./NBAteams.json');
 const mlbGames = require('./MLB.json');
 const mlbTeams = require('./MLBteams.json');
 const nhlGames = require('./NHL.json');
@@ -22,7 +23,8 @@ function getTeams(teamlist){
   });
 }
 
-function getNHLTeams(teamlist){
+
+function getNTeams(teamlist){
   return teamlist.teams.map(team => {
     return { id: Number(team.ID), city: team.City, name: team.Name, abbreviation: team.Abbreviation };
   });
@@ -71,9 +73,9 @@ exports.seed = function(knex, Promise) {
   };
 
   const teams = () => {
-    const nbaTeams = [{ id: 86, city: 'Cleveland', name: 'Cavaliers', abbreviation: 'CLE' }, { id: 101, city: 'Golden State', name: 'Warriors', abbreviation: 'GSW' }];
-    const teams0 = nbaTeams.concat(getTeams(mlbTeams));
-    const teams = teams0.concat(getNHLTeams(nhlTeams));
+    const nbaTeamList = getNTeams(nbaTeams);
+    const teams0 = nbaTeamList.concat(getTeams(mlbTeams));
+    const teams = teams0.concat(getNTeams(nhlTeams));
     return knex('teams').del().then(() => {
       return knex('teams').insert(teams, 'id');
     });
