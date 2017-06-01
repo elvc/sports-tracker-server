@@ -25,19 +25,30 @@ module.exports = (function () {
 
   // checks for sessions on page refresh
   router.get('/checkifloggedin', (req, res) => {
-    dbUsers.getUserByUserName(req.session.username).then((result) => {
-      res.json({
-        isLoggedIn: (req.session.username !== undefined),
-        username: req.session.username,
-        user_id: req.session.user_id,
-        email: result[0].email
+    if (req.session.username !== undefined) {
+      dbUsers.getUserByUserName(req.session.username).then((result) => {
+        res.json({
+          isLoggedIn: (req.session.username !== undefined),
+          username: req.session.username,
+          user_id: req.session.user_id,
+          email: result[0].email
+        });
       });
-    });
+    } else {
+      res.json( { isLoggedIn: false });
+    }
   });
 
   // share email route
   router.post('/share', (req, res) => {
     sendEmailNow(req.body.date, req.body.awayTeam, req.body.homeTeam, req.body.email);
+    res.status(200);
+    res.json({ message: 'Success', email: req.body.email });
+  });
+
+  // notify-me route
+  router.post('/notify-me', (req, res) => {
+    sendEmail(req.body.date, req.body.awayTeam, req.body.homeTeam, req.body.email, req.body.startTime);
     res.status(200);
     res.json({ message: 'Success', email: req.body.email });
   });
