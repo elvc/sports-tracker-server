@@ -35,7 +35,7 @@ module.exports = (function () {
         });
       });
     } else {
-      res.json( { isLoggedIn: false });
+      res.json({ isLoggedIn: false });
     }
   });
 

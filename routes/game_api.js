@@ -37,22 +37,25 @@ const getGamesByDate = (league, date) => dbGames.findByLeagueAndDate(league, dat
       game.league = dbGame.league;
       return game;
     });
+  } else {
+    return new Promise((resolve, reject) => resolve([]));
+    // const apiDate = date.replace(/-/g, '');
+    // const apiPath = `https://www.mysportsfeeds.com/api/feed/pull/${league}/latest/daily_game_schedule.json?fordate=${apiDate}`;
+    // return axios.get(apiPath, config).then((json) => {
+    //   if (json.data.dailygameschedule.gameentry) {
+    //     let startTime;
+    //     return json.data.dailygameschedule.gameentry.map((game) => {
+    //       game.gameId = parseInt(game.id, 10);
+    //       game.league = league;
+    //       startTime = moment.tz(`${game.date} ${game.time}`, 'YYYY-MM-DD hh:mmA', gameTimeZone);
+    //       game.time = startTime.tz(dateTimeZone).format('hh:mmA');
+    //       return game;
+    //     });
+
+    //   }
+    //   return [];
+    // });
   }
-  const apiDate = date.replace(/-/g, '');
-  const apiPath = `https://www.mysportsfeeds.com/api/feed/pull/${league}/latest/daily_game_schedule.json?fordate=${apiDate}`;
-  return axios.get(apiPath, config).then((json) => {
-    if (json.data.dailygameschedule.gameentry) {
-      let startTime;
-      return json.data.dailygameschedule.gameentry.map((game) => {
-        game.gameId = parseInt(game.id, 10);
-        game.league = league;
-        startTime = moment.tz(`${game.date} ${game.time}`, 'YYYY-MM-DD hh:mmA', gameTimeZone);
-        game.time = startTime.tz(dateTimeZone).format('hh:mmA');
-        return game;
-      });
-    }
-    return [];
-  });
 })
 .then(values => values);
 
