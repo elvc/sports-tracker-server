@@ -1,16 +1,18 @@
-const { sendEmail, sendEmailNow } = require('../emailer/emailer');
 require('dotenv').config();
-const ENV = process.env.NODE_ENV || 'development';
-const knexConfig = require('../knexfile');
-const knex = require('knex')(knexConfig[ENV]);
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const { sendEmail, sendEmailNow } = require('../emailer/emailer');
+
+const ENV = process.env.NODE_ENV || 'development';
+const knexConfig = require('../knexfile');
+const knex = require('knex')(knexConfig[ENV]);
 const dbUsers = require('../db/users')(knex);
+
 const router = express.Router();
 
-module.exports = (function() {
+module.exports = (function () {
   router.use(cookieSession({
     name: 'session',
     keys: ['Lighthouse'],
@@ -23,11 +25,13 @@ module.exports = (function() {
 
   // checks for sessions on page refresh
   router.get('/checkifloggedin', (req, res) => {
-    const sessionUsername = req.session.username;
-    res.json({
-      isLoggedIn: (sessionUsername !== undefined),
-      username: sessionUsername,
-      user_id: req.session.user_id
+    dbUsers.getUserByUserName(req.session.username).then((result) => {
+      res.json({
+        isLoggedIn: (req.session.username !== undefined),
+        username: req.session.username,
+        user_id: req.session.user_id,
+        email: result[0].email
+      });
     });
   });
 
@@ -48,7 +52,7 @@ module.exports = (function() {
   // register route
   router.post('/register', (req, res) => {
     dbUsers.getUserByUserNameOrEmail(req.body.username, req.body.email)
-    .then(result => {
+    .then((user) => {
       if (!req.body.email || !req.body.password || !req.body.username) {
         res.status(400);
         res.json({ message: 'Please input all fields.' });
@@ -58,7 +62,7 @@ module.exports = (function() {
       } else if (req.body.username.length < 5) {
         res.status(400);
         res.json({ message: 'User name length must exceed 5 characters.' });
-      } else if (result[0]) {
+      } else if (user[0]) {
         res.status(400);
         res.json({ message: 'Username/Email already in use. Please register with another username and email' });
       } else {
@@ -66,10 +70,10 @@ module.exports = (function() {
           const username = req.body.username.toLowerCase();
           const email = req.body.email.toLowerCase();
           dbUsers.insertUser(username, email, hash)
-          .then(result => {
+          .then((response) => {
             req.session.username = username;
-            req.session.user_id = result[0];
-            res.json({ username: req.session.username, user_id: req.session.user_id });
+            req.session.user_id = response[0];
+            res.json({ username: req.session.username, user_id: req.session.user_id, email });
           });
         });
       }
@@ -87,15 +91,15 @@ module.exports = (function() {
         res.json({ message: 'Incorrect username or password' });
       } else {
         const registeredPw = result[0].password;
-        const user_id = result[0].id;
-        bcrypt.compare(inputPw, registeredPw, (err, result) => {
-          if (!result) {
+        const userId = result[0].id;
+        bcrypt.compare(inputPw, registeredPw, (err, auth) => {
+          if (!auth) {
             res.status(401);
             res.json({ message: 'Incorrect username or password' });
           } else {
             req.session.username = inputUsername;
-            req.session.user_id = user_id;
-            res.json({ username: req.session.username, user_id: req.session.user_id });
+            req.session.user_id = userId;
+            res.json({ username: req.session.username, user_id: req.session.user_id, email: result[0].email });
           }
         });
       }
@@ -113,4 +117,4 @@ module.exports = (function() {
   });
 
   return router;
-})();
+}());
