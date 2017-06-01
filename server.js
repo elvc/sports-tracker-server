@@ -77,23 +77,19 @@ const broadcastToRoom = (room, message) => {
 };
 
 io.on('connection', (socket) => {
-  console.log('New client connected');
   socket.on('action', (action) => {
     switch (action.type) {
       case 'socket/JOIN_ROOM': {
-        console.log('joining ', action.payload.room.id);
         socket.join(action.payload.room.id);
         broadcastUserCount(action.payload.room.id);
         break;
       }
       case 'socket/LEAVE_ROOM': {
-        console.log('leaving ', action.payload.roomId);
         socket.leave(action.payload.roomId);
         broadcastUserCount(action.payload.roomId);
         break;
       }
       case 'socket/POST_MESSAGE': {
-        console.log('post to', action.payload.room, ':', action.payload.message);
         broadcastToRoom(action.payload.room, action.payload.message);
         break;
       }

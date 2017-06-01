@@ -7,7 +7,7 @@ module.exports = function(knex) {
       .into('cards');
     },
     getCardsByUser: (user_id) => {
-      return knex.select('cards.user_id', 'cards.game_id as gameId', 'games.league', 'awayteam.abbreviation as awayteam', 'hometeam.abbreviation as hometeam', 'games.time', 'games.date')
+      return knex.select('cards.user_id', 'games.away_team_id', 'games.home_team_id', 'cards.game_id as gameId', 'games.league', 'awayteam.abbreviation as awayteam', 'hometeam.abbreviation as hometeam', 'games.time', 'games.date')
       .from('cards')
       .join('games', 'cards.game_id','games.id')
       .join('teams AS awayteam', 'games.away_team_id', 'awayteam.id')

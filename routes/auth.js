@@ -25,6 +25,7 @@ module.exports = (function () {
 
   // checks for sessions on page refresh
   router.get('/checkifloggedin', (req, res) => {
+
     if (req.session.username !== undefined) {
       dbUsers.getUserByUserName(req.session.username).then((result) => {
         res.json({
