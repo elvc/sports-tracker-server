@@ -49,7 +49,7 @@ module.exports = {
     const mail = {
       from: 'sport.tracker.canada@gmail.com',
       to,
-      subject: `Invitiation: ${awayTeam} vs ${homeTeam} on ${date}`,
+      subject: `Invitation: ${awayTeam} vs ${homeTeam} on ${date}`,
       template: 'share',
       context: {
         awayTeam: `${awayTeam}`,
