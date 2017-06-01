@@ -55,10 +55,17 @@ module.exports = (function () {
 
   // register route
   router.post('/register', (req, res) => {
-    dbUsers.getUserByUserNameOrEmail(req.body.username, req.body.email).then((user) => {
+    dbUsers.getUserByUserNameOrEmail(req.body.username, req.body.email)
+    .then((user) => {
       if (!req.body.email || !req.body.password || !req.body.username) {
         res.status(400);
         res.json({ message: 'Please input all fields.' });
+      } else if (req.body.password.length < 8) {
+        res.status(400);
+        res.json({ message: 'Password length must contain at least 8 characters.' });
+      } else if (req.body.username.length < 5) {
+        res.status(400);
+        res.json({ message: 'User name length must exceed 5 characters.' });
       } else if (user[0]) {
         res.status(400);
         res.json({ message: 'Username/Email already in use. Please register with another username and email' });
