@@ -26,16 +26,18 @@ transporter.use('compile', hbs(options));
 
 module.exports = {
   sendEmail: (date, awayTeam, homeTeam, to, startTime) => {
-    // schedule to email reminder 45 minutes before game time
     const sendTime = moment(`${date} ${startTime}`, 'YYYY-MM-DD hh:mmA').subtract(45, 'minutes');
-    const task = cron.schedule(`* ${sendTime.minute()} ${sendTime.hour()} ${sendTime.date()} * *`, () => {
+    const task = cron.schedule(`* ${sendTime.minute()} ${sendTime.hour()} ${sendTime.date()} * *`, function(){
       const mail = {
         from: 'sport.tracker.canada@gmail.com',
         to,
-        subject: `Reminder: ${awayTeam} vs ${homeTeam} on ${date} at ${startTime}`,
+        subject: `Reminder: ${awayTeam} vs ${homeTeam} on ${date}`,
         template: 'notify',
         context: {
-          game: `Reminder: ${awayTeam} vs ${homeTeam} on ${date}. Game is starting at ${startTime}`
+          awayTeam: `${awayTeam}`,
+          homeTeam: `${homeTeam}`,
+          date: `${date}`,
+          startTime: `${startTime}`
         }
       }
       transporter.sendMail(mail);
