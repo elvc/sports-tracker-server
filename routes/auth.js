@@ -27,12 +27,16 @@ module.exports = (function () {
   router.get('/checkifloggedin', (req, res) => {
     if (req.session.username !== undefined) {
       dbUsers.getUserByUserName(req.session.username).then((result) => {
-        res.json({
-          isLoggedIn: (req.session.username !== undefined),
-          username: req.session.username,
-          user_id: req.session.user_id,
-          email: result[0].email
-        });
+        if (result.length) {
+          res.json({
+            isLoggedIn: (req.session.username !== undefined),
+            username: req.session.username,
+            user_id: req.session.user_id,
+            email: result[0].email
+          });
+        } else {
+          res.json({ isLoggedIn: false });
+        }
       });
     } else {
       res.json({ isLoggedIn: false });
