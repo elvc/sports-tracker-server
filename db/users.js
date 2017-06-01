@@ -1,25 +1,16 @@
-module.exports = function(knex) {
+module.exports = function (knex) {
   return {
-
-    insertUser: (username, email, password) => {
-      return knex.returning('id')
-      .insert({username: username, email: email, password: password}).into('users');
-    },
-    getUserByUserName: (username) => {
-      return knex.select('*')
+    insertUser: (username, email, password) => knex.returning('id')
+      .insert({ username, email, password }).into('users'),
+    getUserByUserName: username => knex.select('*')
       .from('users')
-      .where('username', '=', username);
-    },
-    getUserByEmail: (email) => {
-      return knex.select('*')
+      .where('username', '=', username),
+    getUserByEmail: email => knex.select('*')
       .from('users')
-      .where('email', '=', email)
-    },
-    getUserByUserNameOrEmail: (username, email) => {
-      return knex.select('*')
+      .where('email', '=', email),
+    getUserByUserNameOrEmail: (username, email) => knex.select('*')
       .from('users')
       .where('email', email)
       .orWhere('username', username)
-    }
   };
 };
