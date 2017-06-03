@@ -17,7 +17,11 @@ module.exports = function (knex) {
         const gameDate = moment(game.date, 'YYYY-MM-DD');
         return gameDate.isBetween(moment(), moment().add(days, 'days'), 'day', '[]');
       }))
-
+      .then(data => data.sort((a, b) => {
+        const aDate = moment(`${a.date} ${a.time}`, 'YYYY-MM-DD hh:mmA');
+        const bDate = moment(`${b.date} ${b.time}`, 'YYYY-MM-DD hh:mmA');
+        return aDate.diff(bDate);
+      }))
       // .from('games')
       // .join('teams', function () {
       //   this.on('games.away_team_id', 'teams.id')
